@@ -1,7 +1,7 @@
 <?php
 
-$plugins->add_hook("showthread_start"             , "downloadthread_showthread_start"             );
-$plugins->add_hook("admin_formcontainer_end"      , "download_admin_formcontainer_end"            );
+$plugins->add_hook("showthread_start", "downloadthread_showthread_start");
+$plugins->add_hook("admin_formcontainer_end", "download_admin_formcontainer_end");
 $plugins->add_hook("admin_user_groups_edit_commit", "downloadthread_admin_user_groups_edit_commit");
 
 function downloadthread_showthread_start()
@@ -22,6 +22,8 @@ function downloadthread_showthread_start()
         $tid = $mybb->get_input("tid", MyBB::INPUT_INT);
         $query = $db->simple_select("posts", "pid,username,dateline,message", "tid=" . $tid, array("order_by" => "pid", "order_dir" => "asc"));
         $posts = array();
+        $safe_name = str_replace(array("#", "%", "&", "{", "}", "\\", "|", "?", "*", "$", "!", "'", "\"", ":", "@", "+", "`", "=", ".", "<", ">", " "), "-", $thread['subject']);
+        $safe_name = str_replace("--", "-", $safe_name);
         if($mybb->get_input("format") == "json")
         {
             while($post = $db->fetch_array($query))
@@ -31,7 +33,7 @@ function downloadthread_showthread_start()
             $json = json_encode($posts);
             $content = $json;
             $contenttype = 'application/json';
-            $fname = 'thread-download.json';
+            $fname = $safe_name . '.json';
         }
         else
         {
@@ -59,7 +61,7 @@ function downloadthread_showthread_start()
             $html .= "</table></body</html>";
             $content = $html;
             $contenttype = 'text/html';
-            $fname = 'thread-download.html';
+            $fname = $safe_name . '.html';
         }
         $db->free_result($query);
 
