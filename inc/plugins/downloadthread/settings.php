@@ -52,6 +52,7 @@ function downloadthread_settings_uninstall()
 {
     global $db;
 
+    $needs_rebuild = false;
     $res = $db->simple_select('settinggroups', 'gid', "name = 'downloadthread_settings'");
     while (($gid = $db->fetch_field($res, 'gid'))) {
         $db->delete_query('settinggroups', "gid='{$gid}'");
