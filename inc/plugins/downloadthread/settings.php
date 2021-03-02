@@ -13,8 +13,7 @@ function downloadthread_settings_install()
         'disporder'    => intval($disporder),
         'isdefault'    => 0
     );
-    $db->insert_query('settinggroups', $fields);
-    $gid = $db->insert_id();
+    $gid = $db->insert_query('settinggroups', $fields);
 
     $settings = array(
         'forums' => array(
@@ -28,10 +27,10 @@ function downloadthread_settings_install()
     foreach ($settings as $name => $setting) {
         $insert_settings = array(
             'name'        => $db->escape_string('downloadthread_'.$name),
-            'title'       => $db->escape_string($setting['title'      ]),
+            'title'       => $db->escape_string($setting['title']),
             'description' => $db->escape_string($setting['description']),
             'optionscode' => $db->escape_string($setting['optionscode']),
-            'value'       => $db->escape_string($setting['value'      ]),
+            'value'       => $db->escape_string($setting['value']),
             'disporder'   => $ordernum                                  ,
             'gid'         => $gid                                       ,
             'isdefault'   => 0
@@ -54,10 +53,14 @@ function downloadthread_settings_uninstall()
 
     $needs_rebuild = false;
     $res = $db->simple_select('settinggroups', 'gid', "name = 'downloadthread_settings'");
-    while (($gid = $db->fetch_field($res, 'gid'))) {
+    while (($gid = $db->fetch_field($res, 'gid')))
+    {
         $db->delete_query('settinggroups', "gid='{$gid}'");
-        $db->delete_query('settings'     , "gid='{$gid}'");
+        $db->delete_query('settings', "gid='{$gid}'");
         $needs_rebuild = true;
     }
-    if ($needs_rebuild) rebuild_settings();
+    if ($needs_rebuild)
+    {
+        rebuild_settings();
+    }
 }
