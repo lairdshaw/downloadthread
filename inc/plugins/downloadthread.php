@@ -22,13 +22,10 @@ function downloadthread_install()
 
     require_once "downloadthread/settings.php";
     downloadthread_settings_install();
-
-    if (!$db->field_exists('dlt_candlthread', 'usergroups')) {
-        // By default, all members can download threads
-        $db->add_column('usergroups', 'dlt_candlthread', "tinyint(1) NOT NULL DEFAULT '1'");
-        $cache->update_usergroups();
-        $groupscache = $cache->read('usergroups');
-    }
+    require_once "downloadthread/db.php";
+    downloadthread_db_install();
+    $cache->update_usergroups();
+    $groupscache = $cache->read('usergroups');
 }
 
 function downloadthread_is_installed()
@@ -60,9 +57,8 @@ function downloadthread_uninstall()
 
     require_once "downloadthread/settings.php";
     downloadthread_settings_uninstall();
-    if ($db->field_exists('dlt_candlthread', 'usergroups')) {
-        $db->drop_column('usergroups', 'dlt_candlthread');
-        $cache->update_usergroups();
-        $groupscache = $cache->read('usergroups');
-    }
+    require_once "downloadthread/db.php";
+    downloadthread_db_uninstall();
+    $cache->update_usergroups();
+    $groupscache = $cache->read('usergroups');
 }
