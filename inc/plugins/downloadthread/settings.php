@@ -31,14 +31,13 @@ function downloadthread_settings_install()
             'description' => $db->escape_string($setting['description']),
             'optionscode' => $db->escape_string($setting['optionscode']),
             'value'       => $db->escape_string($setting['value']),
-            'disporder'   => $ordernum                                  ,
-            'gid'         => $gid                                       ,
+            'disporder'   => $ordernum,
+            'gid'         => $gid,
             'isdefault'   => 0
         );
         $db->insert_query('settings', $insert_settings);
         $ordernum++;
     }
-
     rebuild_settings();
 }
 
