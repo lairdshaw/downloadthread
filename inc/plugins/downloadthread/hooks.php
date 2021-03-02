@@ -6,17 +6,17 @@ $plugins->add_hook("admin_user_groups_edit_commit", "downloadthread_admin_user_g
 
 function downloadthread_showthread_start()
 {
-    global $mybb, $db, $forum, $thread;
+    global $mybb, $db, $forum, $thread, $lang;
+    $lang->load("downloadthread");
     if($mybb->get_input("downloadthread", MyBB::INPUT_INT) == 1 && $mybb->request_method == "post" && verify_post_check($mybb->get_input("my_post_key")))
     {
         if($mybb->settings['downloadthread_forums'] != -1 && !in_array($thread['fid'], explode(',', (string)$mybb->settings['downloadthread_forums'])))
         {
-            /** @todo Create a language file and move all hard-coded strings like this into it. */
-            error('Thread downloading is disabled for this forum.');
+            error($lang->downloadthread_download_disabled);
         }
         else if(!$mybb->usergroup['dlt_candlthread'])
         {
-            error('Your user group does not have permission to download threads.');
+            error($lang->downloadthread_usergroup_no_permission);
         }
 
         $tid = $mybb->get_input("tid", MyBB::INPUT_INT);
@@ -75,7 +75,7 @@ function downloadthread_showthread_start()
     {
         global $downloadthread;
 
-        $downloadthread = '<li style="background-image: none;">Download thread [<form method="post" action="showthread.php?downloadthread=1&amp;tid='.$thread['tid'].'" style="display: inline;"><input type="hidden" name="my_post_key" value="'.$mybb->post_code.'" /><input type="submit" style="background: none; border: none; color: #0072BC; font-family: Tahoma, Verdana, Arial, Sans-Serif; cursor: pointer; display: inline; margin: 0; padding: 0; font-size: 11px;" name="format" value="json" /> | <input type="submit" style="background: none; border: none; color: #0072BC; font-family: Tahoma, Verdana, Arial, Sans-Serif; cursor: pointer; display: inline; margin: 0; padding: 0; font-size: 11px;" name="format" value="html" /></form>]</li>';
+        $downloadthread = '<li style="background-image: none;">' . $lang->downloadthread_downloadthread . ' [<form method="post" action="showthread.php?downloadthread=1&amp;tid='.$thread['tid'].'" style="display: inline;"><input type="hidden" name="my_post_key" value="'.$mybb->post_code.'" /><input type="submit" style="background: none; border: none; color: #0072BC; font-family: Tahoma, Verdana, Arial, Sans-Serif; cursor: pointer; display: inline; margin: 0; padding: 0; font-size: 11px;" name="format" value="json" /> | <input type="submit" style="background: none; border: none; color: #0072BC; font-family: Tahoma, Verdana, Arial, Sans-Serif; cursor: pointer; display: inline; margin: 0; padding: 0; font-size: 11px;" name="format" value="html" /></form>]</li>';
     }
 }
 
