@@ -1,0 +1,14 @@
+{
+  "downloadthread_form": {
+    "title": "downloadthread_form",
+    "template": "<li style=\"background-image: none\">{$lang->downloadthread_downloadthread} \n[<form method=\"post\" action=\"showthread.php?downloadthread=1&amp;tid='.$thread['tid'].'\" style=\"display: inline;\">\n<input type=\"hidden\" name=\"my_post_key\" value=\"'.$mybb->post_code.'\" />\n<input type=\"submit\" style=\"background: none; border: none; color: #0072BC; font-family: Tahoma, Verdana, Arial, Sans-Serif; cursor: pointer; display: inline; margin: 0; padding: 0; font-size: 11px;\" name=\"format\" value=\"json\" /> |\n<input type=\"submit\" style=\"background: none; border: none; color: #0072BC; font-family: Tahoma, Verdana, Arial, Sans-Serif; cursor: pointer; display: inline; margin: 0; padding: 0; font-size: 11px;\" name=\"format\" value=\"html\" /></form>]\n</li>"
+  },
+  "downloadthread_thread": {
+    "title": "downloadthread_thread",
+    "template": "<html>\n<head>\n<title>{$thread['subject']}</title>\n</head>\n<body>\n<div style=\"margin-left: 10%; width:80%\">\n<table border=\"1px solid black\" style=\"border-collapse: collapse\" width=\"100%\">\n{$threadposts}\n</table>\n</div>\n</body>\n</html>"
+  },
+  "downloadthread_post": {
+    "title": "downloadthread_post",
+    "template": "<tr><td style=\"vertical-align: top; padding-left: 5px; padding-right: 5px\">{$post['username']}\n<br />\n<br />\n{$post['time']}\n</td>\n<td style=\"padding-left: 5px; padding-right: 5px\">{$post['message']}</td>\n</tr>"
+  }
+}
