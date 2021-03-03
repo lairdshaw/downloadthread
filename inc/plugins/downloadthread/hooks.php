@@ -49,16 +49,15 @@ function downloadthread_showthread_start()
                 "filter_badwords" => 1
             );
 
-            $html = "<html><head><title>" . $thread['subject'] . "</title></head><body><table border='1px solid black' width='80%'>";
+            $html = "<html><head><title>" . $thread['subject'] . "</title></head><body><div style='margin-left: 10%; width:80%'><table border='1px solid black' style='border-collapse: collapse' width='100%'>";
             while($post = $db->fetch_array($query))
             {
                 $post['message'] = $parser->parse_message($post['message'], $parser_options);
                 $post['time'] = my_date("relative", $post['dateline']);
-                $html .= "<tr><td>" . $post['username'] . "</td>";
-                $html .= "<td>" . $post['message'] . "</td>";
-                $html .= "<td>" . $post['time'] . "</td></tr>";
+                $html .= "<tr><td style='vertical-align: top; padding-left: 5px; padding-right: 5px'>" . $post['username'] . "<br /><br />" . $post['time'] . "</td>";
+                $html .= "<td style='padding-left: 5px; padding-right: 5px'>" . $post['message'] . "</td></tr>";
             }
-            $html .= "</table></body</html>";
+            $html .= "</table></div></body</html>";
             $content = $html;
             $contenttype = 'text/html';
             $fname = $safe_name . '.html';
