@@ -39,14 +39,10 @@ function downloadthread_activate()
 {
     require_once "downloadthread/templates.php";
     downloadthread_templates_install();
-    require_once MYBB_ROOT.'/inc/adminfunctions_templates.php';
-    find_replace_templatesets('showthread', '({\\$addpoll})', "{\$addpoll}\n\t\t\t{\$downloadthread}");
 }
 
 function downloadthread_deactivate()
 {
-    require_once MYBB_ROOT.'/inc/adminfunctions_templates.php';
-    find_replace_templatesets('showthread', '(\\r?\\n\\t\\t\\t{\\$downloadthread})', '', 0);
     require_once "downloadthread/templates.php";
     downloadthread_templates_uninstall();
 }
