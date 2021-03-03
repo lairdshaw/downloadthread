@@ -71,7 +71,6 @@ function downloadthread_showthread_start()
                     $post['message'] = $parser->parse_message($post['message'], $parser_options);
                     $post['time'] = my_date("relative", $post['dateline']);
                     eval("\$threadposts .= \"" . $templates->get("downloadthread_post") . "\";");
-                    eval("\$recentthreads .= \"" . $templates->get("recentthread_thread") . "\";");
                 }
                 eval("\$html = \"" . $templates->get("downloadthread_thread", 1, 0) . "\";");
                 $content = $html;
