@@ -3,7 +3,7 @@
 function downloadthread_templates_install()
 {
     global $db;
-    $template_json = json_decode(file_get_contents("../inc/plugins/downloadthread/templates.json", false), true);
+    $template_json = json_decode(file_get_contents(__DIR__."/templates.json", false), true);
     foreach ($template_json as $key)
     {
         $my_template[] = array(
@@ -45,12 +45,12 @@ function downloadthread_templates_uninstall()
     // Revert Template changes.
     require_once MYBB_ROOT.'/inc/adminfunctions_templates.php';
     find_replace_templatesets('showthread', '(\\r?\\n\\t\\t\\t{\\$downloadthread})', '', 0);
-    $template_json = json_decode(file_get_contents("../inc/plugins/downloadthread/templates.json", false), true);
+    $template_json = json_decode(file_get_contents(__DIR__."/templates.json", false), true);
     $comma = "";
     $delete_string = "";
     foreach ($template_json as $key)
     {
-        $delete_string .= $comma . "'" . $key['title'] . "'";
+        $delete_string .= $comma . "'" . $db->escape_string($key['title']) . "'";
         $comma = ",";
     }
     $db->delete_query("templates", "title IN(" . $delete_string . ")");

@@ -1,7 +1,7 @@
 {
   "downloadthread_form": {
     "title": "downloadthread_form",
-    "template": "<li style=\"background-image: none\">{$lang->downloadthread_downloadthread} \n[<form method=\"post\" action=\"showthread.php?downloadthread=1&amp;tid='.$thread['tid'].'\" style=\"display: inline;\">\n<input type=\"hidden\" name=\"my_post_key\" value=\"'.$mybb->post_code.'\" />\n<input type=\"submit\" style=\"background: none; border: none; color: #0072BC; font-family: Tahoma, Verdana, Arial, Sans-Serif; cursor: pointer; display: inline; margin: 0; padding: 0; font-size: 11px;\" name=\"format\" value=\"json\" /> |\n<input type=\"submit\" style=\"background: none; border: none; color: #0072BC; font-family: Tahoma, Verdana, Arial, Sans-Serif; cursor: pointer; display: inline; margin: 0; padding: 0; font-size: 11px;\" name=\"format\" value=\"html\" /></form>]\n</li>"
+    "template": "<li style=\"background-image: none\">{$lang->downloadthread_downloadthread} \n[<form method=\"post\" action=\"showthread.php?downloadthread=1&amp;tid={$thread['tid']}\" style=\"display: inline;\">\n<input type=\"hidden\" name=\"my_post_key\" value=\"{$mybb->post_code}\" />\n<input type=\"submit\" style=\"background: none; border: none; color: #0072BC; font-family: Tahoma, Verdana, Arial, Sans-Serif; cursor: pointer; display: inline; margin: 0; padding: 0; font-size: 11px;\" name=\"format\" value=\"json\" /> |\n<input type=\"submit\" style=\"background: none; border: none; color: #0072BC; font-family: Tahoma, Verdana, Arial, Sans-Serif; cursor: pointer; display: inline; margin: 0; padding: 0; font-size: 11px;\" name=\"format\" value=\"html\" /></form>]\n</li>"
   },
   "downloadthread_thread": {
     "title": "downloadthread_thread",

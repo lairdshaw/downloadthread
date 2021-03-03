@@ -37,7 +37,8 @@ function downloadthread_showthread_start()
             $tid = $mybb->get_input("tid", MyBB::INPUT_INT);
             $query = $db->simple_select("posts", "pid,username,dateline,message", "tid=" . $tid, array("order_by" => "pid", "order_dir" => "asc"));
             $posts = array();
-            $safe_name = str_replace(array("#", "%", "&", "{", "}", "\\", "|", "?", "*", "$", "!", "'", "\"", ":", "@", "+", "`", "=", ".", "<", ">", " "), "-", $thread['subject']);
+            $safe_name = str_replace(' ', '-', $thread['subject']);
+            $safe_name = preg_replace('([^A-Za-z0-9_-])', '', $safe_name);
             $safe_name = str_replace("--", "-", $safe_name);
             if ($mybb->get_input("format") == "json")
             {
@@ -72,7 +73,7 @@ function downloadthread_showthread_start()
                     eval("\$threadposts .= \"" . $templates->get("downloadthread_post") . "\";");
                     eval("\$recentthreads .= \"" . $templates->get("recentthread_thread") . "\";");
                 }
-                eval("\$html = \"" . $templates->get("downloadthread_thread") . "\";");
+                eval("\$html = \"" . $templates->get("downloadthread_thread", 1, 0) . "\";");
                 $content = $html;
                 $contenttype = 'text/html';
                 $fname = $safe_name . '.html';
