@@ -1,0 +1,22 @@
+<li style="background-image: none">{$lang->downloadthread_downloadthread} 
+<form method="post" action="showthread.php?downloadthread=1&amp;tid={$thread['tid']}" style="display: inline;" id="downloadthread_form">
+<input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
+<select name="format" id="format_select" onchange="downloadthread()">
+<option value="0">{$lang->select}</option>
+<option value="html">HTML</option>
+<option value="json">JSON</option>
+<option value="csv">CSV</option>
+</select>
+<input type="submit" value="{$lang->go}" /></form>
+</li>
+<script>
+function downloadthread()
+{
+var chosen_format = document.getElementById("format_select").value;
+if(chosen_format == 0)
+{
+ return;
+}
+document.getElementById("downloadthread_form").submit();
+}
+</script>
