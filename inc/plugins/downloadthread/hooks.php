@@ -1,79 +1,124 @@
 <?php
 
-$plugins->add_hook("showthread_start"             , "downloadthread_showthread_start"             );
-$plugins->add_hook("admin_formcontainer_end"      , "download_admin_formcontainer_end"            );
+$plugins->add_hook("global_start", "downloadthread_global_start");
+$plugins->add_hook("showthread_start", "downloadthread_showthread_start");
+$plugins->add_hook("admin_formcontainer_end", "download_admin_formcontainer_end");
 $plugins->add_hook("admin_user_groups_edit_commit", "downloadthread_admin_user_groups_edit_commit");
+
+function downloadthread_global_start()
+{
+    global $templatelist;
+    if(!defined("THIS_SCRIPT"))
+    {
+        return;
+    }
+    if(THIS_SCRIPT == "showthread.php")
+    {
+        $templatelist .= ",downloadthread_form,downloadthread_thread,downloadthread_post";
+    }
+}
 
 function downloadthread_showthread_start()
 {
-    global $mybb, $db, $forum, $thread;
+    global $mybb, $db, $forum, $thread, $lang, $templates;
+    $lang->load("downloadthread");
     if($mybb->get_input("downloadthread", MyBB::INPUT_INT) == 1 && $mybb->request_method == "post" && verify_post_check($mybb->get_input("my_post_key")))
     {
         if($mybb->settings['downloadthread_forums'] != -1 && !in_array($thread['fid'], explode(',', (string)$mybb->settings['downloadthread_forums'])))
         {
-            /** @todo Create a language file and move all hard-coded strings like this into it. */
-            error('Thread downloading is disabled for this forum.');
+            error($lang->downloadthread_download_disabled);
         }
         else if(!$mybb->usergroup['dlt_candlthread'])
         {
-            error('Your user group does not have permission to download threads.');
-        }
-
-        $tid = $mybb->get_input("tid", MyBB::INPUT_INT);
-        $query = $db->simple_select("posts", "pid,username,dateline,message", "tid=" . $tid, array("order_by" => "pid", "order_dir" => "asc"));
-        $posts = array();
-        if($mybb->get_input("format") == "json")
-        {
-            while($post = $db->fetch_array($query))
-            {
-                $posts[$post['pid']] = $post;
-            }
-            $json = json_encode($posts);
-            $content = $json;
-            $contenttype = 'application/json';
-            $fname = 'thread-download.json';
+            error($lang->downloadthread_usergroup_no_permission);
         }
         else
         {
-            // They want HTML so we need to include the parser.
-            require_once MYBB_ROOT . "inc/class_parser.php";
-            $parser = new postParser;
-            $parser_options = array(
-                "allow_html" => $forum['allowhtml'],
-                "allow_mycode" => $forum['allowmycode'],
-                "allow_smilies" => $forum['allowsmilies'],
-                "allow_imgcode" => $forum['allowimgcode'],
-                "allow_videocode" => $forum['allowvideocode'],
-                "filter_badwords" => 1
-            );
-
-            $html = "<html><head><title>" . $thread['subject'] . "</title></head><body><table border='1px solid black' width='80%'>";
-            while($post = $db->fetch_array($query))
+            $tid = $mybb->get_input("tid", MyBB::INPUT_INT);
+            $query = $db->simple_select("posts", "pid,username,dateline,message", "tid=" . $tid, array("order_by" => "pid", "order_dir" => "asc"));
+            $posts = array();
+            $safe_name = str_replace(array("#", "%", "&", "{", "}", "\\", "|", "?", "*", "$", "!", "'", "\"", ":", "@", "+", "`", "=", ".", "<", ">", " "), "-", $thread['subject']);
+            $safe_name = str_replace("--", "-", $safe_name);
+            if ($mybb->get_input("format") == "json")
             {
-                $post['message'] = $parser->parse_message($post['message'], $parser_options);
-                $post['time'] = my_date("relative", $post['dateline']);
-                $html .= "<tr><td>" . $post['username'] . "</td>";
-                $html .= "<td>" . $post['message'] . "</td>";
-                $html .= "<td>" . $post['time'] . "</td></tr>";
+                while ($post = $db->fetch_array($query))
+                {
+                    $posts[$post['pid']] = $post;
+                }
+                $json = json_encode($posts);
+                $content = $json;
+                $contenttype = 'application/json';
+                $fname = $safe_name . '.json';
             }
-            $html .= "</table></body</html>";
-            $content = $html;
-            $contenttype = 'text/html';
-            $fname = 'thread-download.html';
-        }
-        $db->free_result($query);
+            else if($mybb->get_input("format") == "html")
+            {
+                // They want HTML so we need to include the parser.
+                require_once MYBB_ROOT . "inc/class_parser.php";
+                $parser = new postParser;
+                $parser_options = array(
+                    "allow_html" => $forum['allowhtml'],
+                    "allow_mycode" => $forum['allowmycode'],
+                    "allow_smilies" => $forum['allowsmilies'],
+                    "allow_imgcode" => $forum['allowimgcode'],
+                    "allow_videocode" => $forum['allowvideocode'],
+                    "filter_badwords" => 1
+                );
 
-        header('Content-Description: File Transfer');
-        header("Content-Disposition: attachment; filename=$fname");
-        header("Content-type: $contenttype");
-        echo $content;
-        exit;
+                $threadposts = "";
+                while ($post = $db->fetch_array($query))
+                {
+                    $post['message'] = $parser->parse_message($post['message'], $parser_options);
+                    $post['time'] = my_date("relative", $post['dateline']);
+                    eval("\$threadposts .= \"" . $templates->get("downloadthread_post") . "\";");
+                    eval("\$recentthreads .= \"" . $templates->get("recentthread_thread") . "\";");
+                }
+                eval("\$html = \"" . $templates->get("downloadthread_thread") . "\";");
+                $content = $html;
+                $contenttype = 'text/html';
+                $fname = $safe_name . '.html';
+            }
+            else
+            {
+                // CSV Format
+                $content = "";
+                $first = true;
+                while($post = $db->fetch_array($query))
+                {
+                    if($first)
+                    {
+                        $first = false;
+                        $content = implode(",", array_keys($post));
+                    }
+                    $safe_post = array_map("my_escape_csv", $post);
+                    $content .= "\n" . implode(",", $safe_post);
+                }
+                $contenttype = "text/csv";
+                $fname = $safe_name . '.csv';
+            }
+            $db->free_result($query);
+
+            header('Content-Description: File Transfer');
+            header("Content-Disposition: attachment; filename=$fname");
+            header("Content-type: $contenttype");
+            echo $content;
+            exit;
+        }
     }
     else
     {
         global $downloadthread;
-
-        $downloadthread = '<li style="background-image: none;">Download thread [<form method="post" action="showthread.php?downloadthread=1&amp;tid='.$thread['tid'].'" style="display: inline;"><input type="hidden" name="my_post_key" value="'.$mybb->post_code.'" /><input type="submit" style="background: none; border: none; color: #0072BC; font-family: Tahoma, Verdana, Arial, Sans-Serif; cursor: pointer; display: inline; margin: 0; padding: 0; font-size: 11px;" name="format" value="json" /> | <input type="submit" style="background: none; border: none; color: #0072BC; font-family: Tahoma, Verdana, Arial, Sans-Serif; cursor: pointer; display: inline; margin: 0; padding: 0; font-size: 11px;" name="format" value="html" /></form>]</li>';
+        if($mybb->settings['downloadthread_forums'] != -1 && !in_array($thread['fid'], explode(',', (string)$mybb->settings['downloadthread_forums'])))
+        {
+            $downloadthread = "";
+        }
+        else if(!$mybb->usergroup['dlt_candlthread'])
+        {
+            $downloadthread = "";
+        }
+        else
+        {
+            eval("\$downloadthread =\"".$templates->get("downloadthread_form")."\";");
+        }
     }
 }
 
