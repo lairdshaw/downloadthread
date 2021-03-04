@@ -37,8 +37,7 @@ function downloadthread_showthread_start()
             $tid = $mybb->get_input("tid", MyBB::INPUT_INT);
             $query = $db->simple_select("posts", "pid,username,dateline,message", "tid=" . $tid, array("order_by" => "pid", "order_dir" => "asc"));
             $posts = array();
-            $safe_name = str_replace(' ', '-', $thread['subject']);
-            $safe_name = preg_replace('([^A-Za-z0-9_-])', '', $safe_name);
+            $safe_name = str_replace(array("#", "%", "&", "{", "}", "\\", "|", "?", "*", "$", "!", "'", "\"", ":", "@", "+", "`", "=", ".", "<", ">", " "), "-", $thread['subject']);
             $safe_name = str_replace("--", "-", $safe_name);
             if ($mybb->get_input("format") == "json")
             {
@@ -51,7 +50,7 @@ function downloadthread_showthread_start()
                 $contenttype = 'application/json';
                 $fname = $safe_name . '.json';
             }
-            else
+            else if($mybb->get_input("format") == "html")
             {
                 // They want HTML so we need to include the parser.
                 require_once MYBB_ROOT . "inc/class_parser.php";
@@ -71,11 +70,30 @@ function downloadthread_showthread_start()
                     $post['message'] = $parser->parse_message($post['message'], $parser_options);
                     $post['time'] = my_date("relative", $post['dateline']);
                     eval("\$threadposts .= \"" . $templates->get("downloadthread_post") . "\";");
+                    eval("\$recentthreads .= \"" . $templates->get("recentthread_thread") . "\";");
                 }
-                eval("\$html = \"" . $templates->get("downloadthread_thread", 1, 0) . "\";");
+                eval("\$html = \"" . $templates->get("downloadthread_thread") . "\";");
                 $content = $html;
                 $contenttype = 'text/html';
                 $fname = $safe_name . '.html';
+            }
+            else
+            {
+                // CSV Format
+                $content = "";
+                $first = true;
+                while($post = $db->fetch_array($query))
+                {
+                    if($first)
+                    {
+                        $first = false;
+                        $content = implode(",", array_keys($post));
+                    }
+                    $safe_post = array_map("my_escape_csv", $post);
+                    $content .= "\n" . implode(",", $safe_post);
+                }
+                $contenttype = "text/csv";
+                $fname = $safe_name . '.csv';
             }
             $db->free_result($query);
 
