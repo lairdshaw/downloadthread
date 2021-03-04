@@ -89,7 +89,7 @@ function downloadthread_showthread_start()
                         $first = false;
                         $content = implode(",", array_keys($post));
                     }
-                    $safe_post = array_map("my_escape_csv", $post);
+                    $safe_post = array_map(function($value) {return '"'.my_escape_csv($value).'"';}, $post);
                     $content .= "\n" . implode(",", $safe_post);
                 }
                 $contenttype = "text/csv";
