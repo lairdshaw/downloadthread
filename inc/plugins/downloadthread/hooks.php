@@ -97,11 +97,30 @@ function downloadthread_showthread_start()
             }
             $db->free_result($query);
 
-            header('Content-Description: File Transfer');
-            header("Content-Disposition: attachment; filename=$fname");
-            header("Content-type: $contenttype");
-            echo $content;
-            exit;
+            $zip = new ZipArchive;
+            $res = $zip->open($safe_name . ".zip", ZipArchive::CREATE);
+            if(!$res)
+            {
+                header('Content-Description: File Transfer');
+                header("Content-Disposition: attachment; filename=$fname");
+                header("Content-type: $contenttype");
+                echo $content;
+                exit;
+            }
+            else
+            {
+                // Successfully created zip file.
+                $contenttype = "application/zip";
+                $zip->addFromString($fname, $content);
+                $zip->close();
+                $fname = $safe_name . ".zip";
+                header('Content-Description: File Transfer');
+                header("Content-Disposition: attachment; filename=$fname");
+                header("Content-type: $contenttype");
+                header("Content-Length: " . filesize($fname));
+                readfile($fname);
+                exit;
+            }
         }
     }
     else
